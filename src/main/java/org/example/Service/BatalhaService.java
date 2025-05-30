@@ -4,8 +4,6 @@ import org.example.Domain.Batalha;
 import org.example.Domain.Jogador;
 import org.example.Domain.Pokemon;
 import org.example.Repository.BatalhaRepository;
-import org.example.Repository.JogadorRepository;
-import org.example.Repository.PokemonRepository;
 import org.example.dto.BatalhaDTO;
 import org.example.dto.BatalhaVencedorDTO;
 import org.example.dto.JogadorBatalhaDTO;
@@ -16,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,30 +69,10 @@ public class BatalhaService {
             throw new IllegalArgumentException("Ambos os jogadores devem ter pelo menos 2 Pokémon.");
         }
 
-        int derrotasJogador1 = 0;
-        int derrotasJogador2 = 0;
+        int derrotasJogador1 = contarDerrotas(pokemonsJogador1, pokemonsJogador2);
+        int derrotasJogador2 = contarDerrotas(pokemonsJogador2, pokemonsJogador1);
 
-        for (int contador = 0; contador < 2; contador++) {
-            Pokemon pokemon1 = pokemonsJogador1.get(contador);
-            Pokemon pokemon2 = pokemonsJogador2.get(contador);
-
-            int vencedor = simularLutar(pokemon1, pokemon2);
-
-            if (vencedor == 1) {
-                derrotasJogador2++;
-            } else if (vencedor == 2) {
-                derrotasJogador1++;
-            }
-        }
-
-        String vencedor;
-        if (derrotasJogador1 == 2) {
-            vencedor = batalha.getJogador2().getNome();
-        } else if (derrotasJogador2 == 2) {
-            vencedor = batalha.getJogador1().getNome();
-        } else {
-            vencedor = "Empate";
-        }
+        String vencedor = determinarVencedor(batalha, derrotasJogador1, derrotasJogador2);
 
         return new BatalhaVencedorDTO(vencedor);
     }
@@ -137,4 +114,25 @@ public class BatalhaService {
         else if (hp2 > 0) return 2;
         else return 0;
     }
+
+    private int contarDerrotas(List<Pokemon> meusPokemons, List<Pokemon> pokemonsOponentes) {
+        int derrotas = 0;
+        for (int i = 0; i < 2; i++) {
+            int resultado = simularLutar(meusPokemons.get(i), pokemonsOponentes.get(i));
+            if (resultado == 2) {
+                derrotas++;
+            }
+        }
+        return derrotas;
+    }
+
+    private String determinarVencedor(Batalha batalha, int derrotasJogador1, int derrotasJogador2) {
+        if (derrotasJogador1 == 2) {
+            return batalha.getJogador2().getNome();
+        } else if (derrotasJogador2 == 2) {
+            return batalha.getJogador1().getNome();
+        }
+        return "Empate";
+    }
+
 }

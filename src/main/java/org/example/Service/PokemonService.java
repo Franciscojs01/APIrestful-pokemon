@@ -10,6 +10,7 @@ import org.example.dto.PokemonSelecionadoDTO;
 import org.example.exceptions.JogadorNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ public class PokemonService {
     @Autowired
     private JogadorRepository jogadorRepository;
 
-    public List<PokemonEscolhaDTO> gerarPokemonsParaEscolha() {
-        List<PokemonEscolhaDTO> pokemonsEscolha = new ArrayList<>();
+    public List<PokemonDTO> gerarPokemonsParaEscolha() {
+        List<PokemonDTO> pokemonsEscolha = new ArrayList<>();
 
         while (pokemonsEscolha.size() < 8) {
             int randomPokemonId = random.nextInt(898) + 1;
@@ -40,13 +41,14 @@ public class PokemonService {
             if (pokemonJaExiste) {
                 continue;
             }
-            PokemonEscolhaDTO pokemonEscolhaDTO = new PokemonEscolhaDTO();
-            pokemonEscolhaDTO.setNome(response.getNome());
-            pokemonEscolhaDTO.setTipo(response.getTipo());
-            pokemonEscolhaDTO.setNivel(random.nextInt(50) + 1);
-            pokemonEscolhaDTO.setHp(random.nextInt(100) + 50);
-            pokemonEscolhaDTO.setAtaque(random.nextInt(50) + 10);
-            pokemonEscolhaDTO.setDefesa(random.nextInt(40) + 5);
+            PokemonDTO pokemonEscolhaDTO = new PokemonDTO(
+                    response.getNome(),
+                    response.getTipo(),
+                    response.getNivel(),
+                    response.getHp(),
+                    response.getAtaque(),
+                    response.getDefesa()
+            );
 
             pokemonsEscolha.add(pokemonEscolhaDTO);
         }
@@ -75,6 +77,10 @@ public class PokemonService {
             pokemon.setJogadorId(jogador);
             pokemonRepository.save(pokemon);
         }
+    }
+
+    private Jogador getJogadorLogado() {
+        return (Jogador) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
 
