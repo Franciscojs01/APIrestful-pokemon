@@ -117,8 +117,8 @@ public class BatalhaService {
 
     private int contarDerrotas(List<Pokemon> meusPokemons, List<Pokemon> pokemonsOponentes) {
         int derrotas = 0;
-        for (int i = 0; i < 2; i++) {
-            int resultado = simularLutar(meusPokemons.get(i), pokemonsOponentes.get(i));
+        for (int contador = 0; contador < 2; contador++) {
+            int resultado = simularLutar(meusPokemons.get(contador), pokemonsOponentes.get(contador));
             if (resultado == 2) {
                 derrotas++;
             }
